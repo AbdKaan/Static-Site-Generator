@@ -11,9 +11,9 @@ class TestLeafNode(unittest.TestCase):
     def test_no_tag(self):
         node = LeafNode(tag="", value="You shall not pass!", props={"Why": "??"})
         assert node.to_html() == "You shall not pass!"
-        
+
     def test_value(self):
-        node = LeafNode(tag="p", value="Test paragraph",  props={"class": "test-class"})
+        node = LeafNode(tag="p", value="Test paragraph", props={"class": "test-class"})
         assert node.value != None
 
     def test_children(self):
