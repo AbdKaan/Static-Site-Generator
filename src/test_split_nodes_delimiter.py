@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode
-from split_nodes_delimiter import split_nodes_delimiter
+from helper_functions import split_nodes_delimiter
 
 
 class TestLeafNode(unittest.TestCase):
