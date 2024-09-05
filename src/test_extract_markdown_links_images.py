@@ -1,10 +1,9 @@
 import unittest
 
 from helper_functions import extract_markdown_images, extract_markdown_links
-from textnode import TextNode
 
 
-class TestTextNode(unittest.TestCase):
+class TestExtractMarkdownLinksImages(unittest.TestCase):
     def test_image_extraction(self):
         text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
         image_markdown = extract_markdown_images(text)
