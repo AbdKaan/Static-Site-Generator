@@ -34,7 +34,6 @@ class TestLeafNode(unittest.TestCase):
 
         assert new_nodes == result
 
-
     def test_multiple_segments(self):
         node = TextNode("This is text with a `code block` word and `another code block`", TextNode.text_type_text)
         new_nodes = split_nodes_delimiter([node], "`", TextNode.text_type_code)
