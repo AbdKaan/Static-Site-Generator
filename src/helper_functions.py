@@ -1,6 +1,26 @@
 import re
 from textnode import TextNode
+from leafnode import LeafNode
+from parentnode import ParentNode
+from htmlnode import HTMLNode
 
+
+def text_node_to_html_node(text_node):
+    match text_node.text_type:
+        case TextNode.text_type_text:
+            return LeafNode(value=text_node.text)
+        case TextNode.text_type_bold:
+            return LeafNode(tag='b', value=text_node.text)
+        case TextNode.text_type_italic:
+            return LeafNode(tag='i', value=text_node.text)
+        case TextNode.text_type_code:
+            return LeafNode(tag='code', value=text_node.text)
+        case TextNode.text_type_link:
+            return LeafNode(tag='a', value=text_node.text, props={'hrefs': text_node.url})
+        case TextNode.text_type_image:
+            return LeafNode(tag='img', value='', props={'src': text_node.url, 'alt': text_node.text})
+        case _:
+            raise Exception("Unexpected Text Type")
 
 def split_nodes_delimiter(old_nodes, delimiter=None, text_type=None):
     text_nodes = []
@@ -10,9 +30,6 @@ def split_nodes_delimiter(old_nodes, delimiter=None, text_type=None):
             text_nodes.append(node)
         else:
             if node.text.count(delimiter) % 2 != 0:
-                print(delimiter)
-                print(node.text.count(delimiter))
-                print(node.text)
                 raise Exception("Invalid Markdown Syntax")
 
             nodes = node.text.split(delimiter)
@@ -103,3 +120,70 @@ def text_to_textnodes(text):
     nodes = split_nodes_image(nodes)
     nodes = split_nodes_link(nodes)
     return nodes
+
+def markdown_to_blocks(markdown):
+    blocks = markdown.split("\n\n")
+    return blocks
+
+def block_to_block_type(block):
+    if re.match(r"^#{1,6} ", block):
+        return "heading"
+    elif block[:3] == "```" and block[-3:] == "```":
+        return "code"
+    elif block[0] == '>':
+        return "quote"
+    elif block[:2] == "* " or block[:2] == "- ":
+        for line in block.split("\n"):
+            if not (line[:2] == "* " or line[:2] == "- "):
+                return "paragraph"
+        return "unordered_list"
+    elif block.split(". ")[0] == "1":
+        row = 1
+        for line in block.split("\n"):
+            if line.split(". ")[0] == f"{row}":
+                row += 1
+            else:
+                return "paragraph"
+        return "ordered_list"
+    else:
+        return "paragraph"
+
+def text_to_children(text):
+    text_nodes = text_to_textnodes(text)
+    leaf_nodes = []
+    for node in text_nodes:
+        leaf_nodes.append(text_node_to_html_node(node))
+    return leaf_nodes
+
+def markdown_to_html_node(markdown):
+    html_node = HTMLNode(children=[])
+    blocks = markdown_to_blocks(markdown)
+
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        if block_type == "heading":
+            split_block = block.split(" ", 1)
+            header_size = len(split_block[0])
+            parent_node = ParentNode(f"h{header_size}", children=text_to_children(split_block[1]))
+        elif block_type == "code":
+            code_node = ParentNode("code", children=text_to_children(block[3:-3]))
+            parent_node = ParentNode("pre", children=[code_node])
+        elif block_type == "quote":
+            parent_node = ParentNode("blockquote", children=text_to_children(block[2:]))
+        elif block_type == "unordered_list":
+            children = []
+            for node in block.split("\n"):
+                parent_list_item_node = ParentNode("li", children=text_to_children(node[2:]))
+                children.append(parent_list_item_node)
+            parent_node = ParentNode("ul", children=children)
+        elif block_type == "ordered_list":
+            children = []
+            for node in block.split("\n"):
+                parent_list_item_node = ParentNode("li", children=text_to_children(node[3:]))
+                children.append(parent_list_item_node)
+            parent_node = ParentNode("ol", children=children)
+        elif block_type == "paragraph":
+            parent_node = ParentNode("p", children=text_to_children(block))
+        html_node.children.append(parent_node)
+
+    return html_node
