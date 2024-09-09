@@ -16,7 +16,7 @@ def text_node_to_html_node(text_node):
         case TextNode.text_type_code:
             return LeafNode(tag='code', value=text_node.text)
         case TextNode.text_type_link:
-            return LeafNode(tag='a', value=text_node.text, props={'hrefs': text_node.url})
+            return LeafNode(tag='a', value=text_node.text, props={'href': text_node.url})
         case TextNode.text_type_image:
             return LeafNode(tag='img', value='', props={'src': text_node.url, 'alt': text_node.text})
         case _:
@@ -156,8 +156,8 @@ def text_to_children(text):
     return leaf_nodes
 
 def markdown_to_html_node(markdown):
-    html_node = HTMLNode(children=[])
     blocks = markdown_to_blocks(markdown)
+    main_children = []
 
     for block in blocks:
         block_type = block_to_block_type(block)
@@ -166,7 +166,7 @@ def markdown_to_html_node(markdown):
             header_size = len(split_block[0])
             parent_node = ParentNode(f"h{header_size}", children=text_to_children(split_block[1]))
         elif block_type == "code":
-            code_node = ParentNode("code", children=text_to_children(block[3:-3]))
+            code_node = ParentNode("code", children=text_to_children(block[3:-3].split("\n", 1)[1]))
             parent_node = ParentNode("pre", children=[code_node])
         elif block_type == "quote":
             parent_node = ParentNode("blockquote", children=text_to_children(block[2:]))
@@ -184,6 +184,7 @@ def markdown_to_html_node(markdown):
             parent_node = ParentNode("ol", children=children)
         elif block_type == "paragraph":
             parent_node = ParentNode("p", children=text_to_children(block))
-        html_node.children.append(parent_node)
 
-    return html_node
+        main_children.append(parent_node)
+
+    return ParentNode("div", children=main_children)

@@ -40,7 +40,7 @@ class TestConverter(unittest.TestCase):
         html_node = text_node_to_html_node(node)
         assert html_node.tag == 'a'
         assert html_node.value == "boot.dev"
-        assert html_node.props['hrefs'] == "boot.dev"
+        assert html_node.props['href'] == "boot.dev"
 
     def test_image(self):
         node = TextNode("duck", "image", "https://cdn.britannica.com/92/100692-050-5B69B59B/Mallard.jpg")

@@ -1,7 +1,6 @@
 import unittest
 
 from helper_functions import markdown_to_html_node
-from htmlnode import HTMLNode
 from parentnode import ParentNode
 from leafnode import LeafNode
 
@@ -10,7 +9,7 @@ class TestMarkdownToHTMLNode(unittest.TestCase):
     def test(self):
         markdown = "# This is a heading\n\nThis is a paragraph of text. It has some **bold** and *italic* words inside of it.\n\n* This is the first list item in a list block\n* This is a list item\n* This is another list item"
         html_node = markdown_to_html_node(markdown)
-        result = HTMLNode(children=[ParentNode(tag="h1", children=[LeafNode(value="This is a heading")]),
+        result = ParentNode("div", children=[ParentNode(tag="h1", children=[LeafNode(value="This is a heading")]),
                                     ParentNode(tag="p", children=[LeafNode(value="This is a paragraph of text. It has some "),
                                                                     LeafNode("b", "bold"),
                                                                     LeafNode(value=" and "),
@@ -27,9 +26,9 @@ class TestMarkdownToHTMLNode(unittest.TestCase):
         assert html_node.children[2].to_html() == result.children[2].to_html()
 
     def test2(self):
-        markdown = "### This is a heading\n\n```This is a paragraph of text. It has some **bold** and *italic* words inside of it.```\n\n1. This is the first *list* item in a list block\n2. This is a list item\n3. This is another list item"
+        markdown = "### This is a heading\n\n```\nThis is a paragraph of text. It has some **bold** and *italic* words inside of it.```\n\n1. This is the first *list* item in a list block\n2. This is a list item\n3. This is another list item"
         html_node = markdown_to_html_node(markdown)
-        result = HTMLNode(children=[ParentNode(tag="h3", children=[LeafNode(value="This is a heading")]),
+        result = ParentNode("div", children=[ParentNode(tag="h3", children=[LeafNode(value="This is a heading")]),
                                     ParentNode(tag="pre", children=[ParentNode(tag="code", children=[LeafNode(value="This is a paragraph of text. It has some "),
                                                                                                     LeafNode("b", "bold"),
                                                                                                     LeafNode(value=" and "),
