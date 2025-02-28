@@ -1,4 +1,4 @@
-class TextNode():
+class TextNode:
     text_type_text = "text"
     text_type_bold = "bold"
     text_type_italic = "italic"
@@ -13,8 +13,14 @@ class TextNode():
 
     def __eq__(self, textnode):
         # Compare with another TextNode instance
-        if self.text == textnode.text and self.text_type == textnode.text_type and self.url == textnode.url:
+        if (
+            self.text == textnode.text
+            and self.text_type == textnode.text_type
+            and self.url == textnode.url
+        ):
             return True
+        return False
 
     def __repr__(self):
         return f"TextNode({self.text}, {self.text_type}, {self.url})"
+
