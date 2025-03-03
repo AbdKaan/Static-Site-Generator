@@ -35,7 +35,7 @@ def split_nodes_delimiter(old_nodes, delimiter=None, text_type=None):
             text_nodes.append(node)
         else:
             if node.text.count(delimiter) % 2 != 0:
-                raise Exception("Invalid Markdown Syntax")
+                continue
 
             nodes = node.text.split(delimiter)
 
@@ -125,6 +125,7 @@ def text_to_textnodes(text):
     text_types_for_delimiter = [
         (TextNode.text_type_bold, "**"),
         (TextNode.text_type_code, "`"),
+        (TextNode.text_type_italic, "_"),
         (TextNode.text_type_italic, "*"),
     ]
     for text_type in text_types_for_delimiter:
@@ -136,7 +137,13 @@ def text_to_textnodes(text):
 
 def markdown_to_blocks(markdown):
     blocks = markdown.split("\n\n")
-    return blocks
+    filtered_blocks = []
+    for block in blocks:
+        if block == "":
+            continue
+        block = block.strip()
+        filtered_blocks.append(block)
+    return filtered_blocks
 
 
 def block_to_block_type(block):
@@ -184,9 +191,7 @@ def markdown_to_html_node(markdown):
                 f"h{header_size}", children=text_to_children(split_block[1])
             )
         elif block_type == "code":
-            code_node = ParentNode(
-                "code", children=text_to_children(block[3:-3].split("\n", 1)[1])
-            )
+            code_node = ParentNode("code", children=text_to_children(block[4:-3]))
             parent_node = ParentNode("pre", children=[code_node])
         elif block_type == "quote":
             parent_node = ParentNode("blockquote", children=text_to_children(block[2:]))
